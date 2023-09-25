@@ -1,15 +1,5 @@
-// import express
-const express = require('express');
 // import and require mysql2
 const mysql = require('mysql2');
-// define port
-const PORT = process.env.PORT || 3001;
-// create new instance of express
-const app = express();
-
-// express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 
 // connect to database
 const db = mysql.createConnection(
@@ -21,12 +11,4 @@ const db = mysql.createConnection(
     console.log('Connected to the Blips and Chitz database.')
 );
 
-// default response for any other request (Not Found)
-app.use((req, res) => {
-    res.status(404).end();
-});
-
-// add listener
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+module.exports = db;
