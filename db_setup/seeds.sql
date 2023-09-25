@@ -20,7 +20,7 @@ VALUES
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
     ("Jackie", "Gazorpian", 1, NULL),
-    ("Fred", "Cromulon", 2, 1),
+    ("Carl", "Cromulon", 2, 1),
     ("Squanchy", "Squanch", 3, 1),
     ("Chad", "Cronenberg", 4, 1),
     ("Matt", "Meeseeks", 5, 1);
