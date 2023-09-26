@@ -18,7 +18,8 @@ const promptUser = () => {
           'Add Role',
           'View All Departments',
           'Add Department',
-          'View Total Utilized Budget of Each Department'
+          'View Total Utilized Budget of Each Department',
+          'Exit'
         ]
       }
     ])
@@ -48,6 +49,10 @@ const promptUser = () => {
       }
       if (choices === 'View Total Utilized Budget of Each Department') {
         totalBudget();
+      }
+      if (choices === 'Exit') {
+        console.log('Buh-Bye 👋');
+        process.exit(0); // exit inquirer
       }
     })
 }
