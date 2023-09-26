@@ -2,10 +2,7 @@
 const db = require('../server');
 // import and require inquirer
 const inquirer = require('inquirer');
-// require db option files
-//const employee = require()
-
-// set questions for user using prompt
+// prompt user
 const promptUser = () => {
   inquirer
     .prompt([
@@ -33,9 +30,9 @@ const promptUser = () => {
       if (choices === 'Add Employee') {
         addEmployees();
       }
-      // if (choices === 'Update Employee Role') {
-
-      // }
+      if (choices === 'Update Employee Role') {
+        updateEmployeeRole();
+      }
       if (choices === 'View All Roles') {
         viewRoles();
       }
@@ -56,12 +53,25 @@ promptUser();
 
 // view employees function
 const viewEmployees = () => {
-  let viewEmployees = 'SELECT * FROM employee'
+  let viewEmployees = `SELECT 
+  employee.id AS ID, 
+  employee.first_name AS First_Name, 
+  employee.last_name AS Last_Name, 
+  role.title AS Job_Title, 
+  department.name AS Department_Name, 
+  role.salary AS Salary, 
+  CONCAT(manager.first_name, " ", manager.last_name) AS Manager_Name
+  FROM 
+  employee 
+  JOIN role ON role.id = employee.role_id
+  JOIN department ON department.id = role.department_id
+  LEFT JOIN employee AS manager ON employee.manager_id = manager.id`
   db.query(viewEmployees, (err, results) => {
     if (err) {
       throw err
     } else {
       console.log('------------------------------------------------------------------');
+      console.log('\n');
       console.log('List of Employees:');
       console.table(results);
       promptUser();
@@ -82,7 +92,6 @@ const addEmployees = () => {
       const rolesArray = roleResults.map(role => role.title);
 
       // query db to get list of managers
-      // get manager ids ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       const viewManagersQuery = 'SELECT * FROM employee';
 
       db.query(viewManagersQuery, (err, managerResults) => {
@@ -90,7 +99,7 @@ const addEmployees = () => {
           throw err
         } else {
           const managerArray = managerResults.map(employee => employee.first_name);
-
+          // prompt user questions for adding employee
           inquirer
             .prompt([
               { // first name
@@ -143,8 +152,9 @@ const addEmployees = () => {
                 if (err) {
                   throw err;
                 } else {
+                  console.log('\n');
                   console.log(`Employee ${firstName} ${lastName} added successfully!`);
-                  promptUser();
+                  viewEmployees();
                 }
               });
             });
@@ -162,15 +172,79 @@ const addEmployees = () => {
 // test();
 
 // update employee role function
+const updateEmployeeRole = () => {
+  // query db to get list of employee names
+  const viewEmployeesQuery = `SELECT
+  CONCAT(employee.first_name, " ", employee.last_name) 
+  AS employee_name FROM employee`;
+
+  db.query(viewEmployeesQuery, (err, employeeResults) => {
+    if (err) {
+      throw err
+    } else {
+      const employeeArray = employeeResults.map(employee => employee.employee_name);
+
+      // query db to get list of roles
+      const viewRolesQuery = 'SELECT * FROM role';
+
+      db.query(viewRolesQuery, (err, roleResults) => {
+        if (err) {
+          throw err
+        } else {
+          const rolesArray = roleResults.map(role => role.title);
+          // prompt user questions for updating employee role
+          inquirer
+          .prompt ([
+            { // employee name
+              type: 'list',
+              name: 'updateEmployeeName',
+              message: "Please select the employee's name.",
+              choices: employeeArray
+            },{ // role
+              type: 'list',
+              name: 'updateRole',
+              message: "Please select the employee's role.",
+              choices: rolesArray
+            }
+          ])
+          .then((answers) => {
+            // insert updated role data into employee db
+          const { updateEmployeeName, updateRole } = answers;
+          const insertUpdatedRoleQuery = 'UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ?) WHERE CONCAT(first_name, " ", last_name) = ?';
+          
+          const values = [updateRole, updateEmployeeName];
+
+          db.query(insertUpdatedRoleQuery, values, (err, insertUpdatedRoleResult) => {
+            if (err) {
+              throw err;
+            } else {
+              console.log('\n');
+              console.log(`Role of ${updateEmployeeName} updated successfully!`);
+              viewEmployees();
+            }
+          });
+          })
+        }
+      })
+    }
+  })
+};
 
 // view roles function
 const viewRoles = () => {
-  let viewRoles = 'SELECT * FROM role'
+  let viewRoles = `SELECT 
+  role.id AS ID, 
+  title AS Title, 
+  name AS Department_Name, 
+  salary AS Salary 
+  FROM role 
+  JOIN department ON department.id = role.department_id`
   db.query(viewRoles, (err, results) => {
     if (err) {
       throw err
     } else {
       console.log('------------------------------------------------------------------');
+      console.log('\n');
       console.log('List of Roles:');
       console.table(results);
       promptUser();
@@ -189,7 +263,7 @@ const addRoles = () => {
     } else {
       // get department titles from query results
       const deptArray = deptResults.map(department => department.name);
-
+      // prompt user questions for adding roles
       inquirer
         .prompt([
           { // role name
@@ -234,9 +308,9 @@ const addRoles = () => {
             if (err) {
               throw err;
             } else {
+              console.log('\n');
               console.log(`Role of ${roleName} added successfully!`);
-              console.log('------------------------------------------------------------------');
-              promptUser();
+              viewRoles();
             }
           });
         });
@@ -246,12 +320,13 @@ const addRoles = () => {
 
 // view departments function
 const viewDepts = () => {
-  let viewDepts = 'SELECT * FROM department'
+  let viewDepts = 'SELECT id AS ID, name AS Department_Name FROM department'
   db.query(viewDepts, (err, results) => {
     if ((err)) {
       throw err
     } else {
       console.log('------------------------------------------------------------------');
+      console.log('\n');
       console.log('List of Departments:');
       console.table(results);
       promptUser();
@@ -261,6 +336,7 @@ const viewDepts = () => {
 
 //add departments function
 const addDepartment = () => {
+  // prompt user questions for adding department
   inquirer
     .prompt([
       { // role name
@@ -286,48 +362,10 @@ const addDepartment = () => {
         if (err) {
           throw err;
         } else {
+          console.log('\n');
           console.log(`Department ${deptName} added successfully!`);
-          console.log('------------------------------------------------------------------');
-          promptUser();
+          viewDepts();
         }
       })
     })
 };
-
-
-
-
-
-
-// connect to database so you can pull and display table info
-// write to database tables when adding or updating info
-
-//pseudocode from james
-
-// Prompt Inquirer to prompt User "What would you like to do?"
-// View all Departments
-// View all Roles
-// View all Employees
-
-// Add a Department
-// Ask for name
-
-// Add Role and input ROLE name
-// Which department does said role belong to?
-
-// Add a Role
-
-// Add an employee
-// Ask for First and Last name
-// Role?
-// Manager?
-// Add static salary for each role.
-
-// Update an employee Role when chosen display - Which employees role do you want to update? which will display all employees.
-// Ask Which role do you want to assign - display ROLES
-// back to main WHAT WOULD YOU LIKE TO DO?
-
-// When user selects option to VIEW - Display that table
-// User still has control of PROMPT
-
-// CREATE A FUNCTION for each option
