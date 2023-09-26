@@ -17,7 +17,8 @@ const promptUser = () => {
           'View All Roles',
           'Add Role',
           'View All Departments',
-          'Add Department'
+          'Add Department',
+          'View Total Utilized Budget of Each Department'
         ]
       }
     ])
@@ -44,6 +45,9 @@ const promptUser = () => {
       }
       if (choices === 'Add Department') {
         addDepartment();
+      }
+      if (choices === 'View Total Utilized Budget of Each Department') {
+        totalBudget();
       }
     })
 }
@@ -82,7 +86,7 @@ const viewEmployees = () => {
 // add employees function
 const addEmployees = () => {
   // query db to get list of roles
-  const viewRolesQuery = 'SELECT * FROM role';
+  let viewRolesQuery = 'SELECT * FROM role';
 
   db.query(viewRolesQuery, (err, roleResults) => {
     if (err) {
@@ -163,31 +167,24 @@ const addEmployees = () => {
     }
   });
 };
-// test to see what results we get
-// const test = () => {
-//     db.query('SELECT * FROM role', (err, results) => {
-//       console.log(results);
-//   })
-// }
-// test();
 
 // update employee role function
 const updateEmployeeRole = () => {
   // query db to get list of employee names
-  const viewEmployeesQuery = `SELECT
+  let updateEmployeesQuery = `SELECT
   CONCAT(employee.first_name, " ", employee.last_name) 
   AS employee_name FROM employee`;
 
-  db.query(viewEmployeesQuery, (err, employeeResults) => {
+  db.query(updateEmployeesQuery, (err, employeeResults) => {
     if (err) {
       throw err
     } else {
       const employeeArray = employeeResults.map(employee => employee.employee_name);
 
       // query db to get list of roles
-      const viewRolesQuery = 'SELECT * FROM role';
+      let updateRolesQuery = 'SELECT * FROM role';
 
-      db.query(viewRolesQuery, (err, roleResults) => {
+      db.query(updateRolesQuery, (err, roleResults) => {
         if (err) {
           throw err
         } else {
@@ -255,7 +252,7 @@ const viewRoles = () => {
 // add roles function
 const addRoles = () => {
   // query db to get list of departments
-  const viewDeptsQuery = 'SELECT * FROM department';
+  let viewDeptsQuery = 'SELECT * FROM department';
 
   db.query(viewDeptsQuery, (err, deptResults) => {
     if (err) {
@@ -368,4 +365,29 @@ const addDepartment = () => {
         }
       })
     })
+};
+
+// function for total budgets of each department
+const totalBudget = () => {
+  // query into db to get role salary and department_id
+  // join role table with department table based on dept id
+  // join employee table with role table based on role id
+  // group by dept name and sum up salaries by dept
+  let totalBudgetRolesQuery = `SELECT 
+  department.name, 
+  SUM (role.salary) AS Department_Budget
+  FROM department
+  LEFT JOIN role ON department.id = role.department_id
+  LEFT JOIN employee ON role.id = employee.role_id
+  GROUP BY department.name`;
+
+  db.query(totalBudgetRolesQuery, (err, budgetResults) => {
+    if (err) {
+      throw err
+    } else {
+      console.log('\n');
+          console.log('View Budget Table Below:')
+          console.table(budgetResults);
+    }
+  })
 };
