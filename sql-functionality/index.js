@@ -196,36 +196,36 @@ const updateEmployeeRole = () => {
           const rolesArray = roleResults.map(role => role.title);
           // prompt user questions for updating employee role
           inquirer
-          .prompt ([
-            { // employee name
-              type: 'list',
-              name: 'updateEmployeeName',
-              message: "Please select the employee's name.",
-              choices: employeeArray
-            },{ // role
-              type: 'list',
-              name: 'updateRole',
-              message: "Please select the employee's role.",
-              choices: rolesArray
-            }
-          ])
-          .then((answers) => {
-            // insert updated role data into employee db
-          const { updateEmployeeName, updateRole } = answers;
-          const insertUpdatedRoleQuery = 'UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ?) WHERE CONCAT(first_name, " ", last_name) = ?';
-          
-          const values = [updateRole, updateEmployeeName];
+            .prompt([
+              { // employee name
+                type: 'list',
+                name: 'updateEmployeeName',
+                message: "Please select the employee's name.",
+                choices: employeeArray
+              }, { // role
+                type: 'list',
+                name: 'updateRole',
+                message: "Please select the employee's role.",
+                choices: rolesArray
+              }
+            ])
+            .then((answers) => {
+              // insert updated role data into employee db
+              const { updateEmployeeName, updateRole } = answers;
+              const insertUpdatedRoleQuery = 'UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ?) WHERE CONCAT(first_name, " ", last_name) = ?';
 
-          db.query(insertUpdatedRoleQuery, values, (err, insertUpdatedRoleResult) => {
-            if (err) {
-              throw err;
-            } else {
-              console.log('\n');
-              console.log(`Role of ${updateEmployeeName} updated successfully!`);
-              viewEmployees();
-            }
-          });
-          })
+              const values = [updateRole, updateEmployeeName];
+
+              db.query(insertUpdatedRoleQuery, values, (err, insertUpdatedRoleResult) => {
+                if (err) {
+                  throw err;
+                } else {
+                  console.log('\n');
+                  console.log(`Role of ${updateEmployeeName} updated successfully!`);
+                  viewEmployees();
+                }
+              });
+            })
         }
       })
     }
@@ -390,9 +390,11 @@ const totalBudget = () => {
     if (err) {
       throw err
     } else {
+      console.log('------------------------------------------------------------------');
       console.log('\n');
-          console.log('View Budget Table Below:')
-          console.table(budgetResults);
+      console.log('View Budget Table Below:')
+      console.table(budgetResults);
+      promptUser();
     }
   })
 };
