@@ -63,9 +63,8 @@ While mysql is running, open another terminal and once again, CD into the folder
 
 ## Demo
 
-Please see a demo of my application [here](https://drive.google.com/file/d/1jpLqCreCzfTKux7VB6ohjFCcrYvUZHDz/view?usp=sharing).
+Please see a demo of my application [here](https://drive.google.com/file/d/151VnvhlcIWchtZf8gNRw9z9HpYqW3hQU/view?usp=sharing).
 
-Please see a demo of running the unit tests [here](https://drive.google.com/file/d/1i14kvGCTNl4D7VvQDHPBTHbkbfbwN0VS/view?usp=sharing).
 
 ## Credits
 
